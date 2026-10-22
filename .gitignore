@@ -1,0 +1,18 @@
+#Compiled Files
+bin/
+out/
+target/
+build/
+*.class
+
+#Gradle
+.gradle/
+
+#Secret
+.env/
+
+#Editors
+.idea/
+*.iml
+.vscode/
+
