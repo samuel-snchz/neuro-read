@@ -1,4 +1,4 @@
-package ch.samuelsnchz.app;
+package ch.samuelsnchz.neuroread;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

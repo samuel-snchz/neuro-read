@@ -1,0 +1,72 @@
+package ch.samuelsnchz.neuroread.ui;
+
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Parent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
+public class MainView {
+	// Multiple of 28: each cell of the future 28x28 grid will be exactly 12 px
+	private static final double CANVAS_SIZE = 336;
+
+	private final GridPane root;
+
+	private final Canvas mainCanvas;
+	private final TextArea outputTextArea;
+	private final Button resetButton;
+
+	public MainView() {
+		this.root = new GridPane();
+
+		ColumnConstraints leftColumn = new ColumnConstraints();
+		ColumnConstraints rightColumn = new ColumnConstraints();
+
+		leftColumn.setPercentWidth(50);
+		rightColumn.setPercentWidth(50);
+		root.getColumnConstraints().addAll(leftColumn, rightColumn);
+
+		RowConstraints row = new RowConstraints();
+		row.setVgrow(Priority.ALWAYS);
+		root.getRowConstraints().add(row);
+
+		this.mainCanvas = new Canvas(CANVAS_SIZE, CANVAS_SIZE);
+		GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+		GridPane.setHalignment(mainCanvas, HPos.CENTER);
+		GridPane.setValignment(mainCanvas, VPos.CENTER);
+
+		final Label outputLabel = new Label("output");
+		outputLabel.setMaxWidth(Double.MAX_VALUE);
+		outputLabel.setAlignment(Pos.CENTER);
+
+		this.outputTextArea = new TextArea();
+		outputTextArea.setEditable(false);
+		outputTextArea.setFont(Font.font("Monospaced", 16));
+		VBox.setVgrow(outputTextArea, Priority.ALWAYS);
+
+		this.resetButton = new Button("reset");
+		final ToolBar toolBar = new ToolBar(resetButton);
+
+		final VBox rightPanel = new VBox(10);
+		rightPanel.setPadding(new Insets(10));
+		rightPanel.getChildren().addAll(outputLabel, outputTextArea, toolBar);
+
+		root.add(mainCanvas, 0, 0);
+		root.add(rightPanel, 1, 0);
+	}
+
+	public Parent getRoot() {
+		return root;
+	}
+}
