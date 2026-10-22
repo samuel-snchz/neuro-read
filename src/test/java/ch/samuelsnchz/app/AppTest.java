@@ -1,4 +1,4 @@
-package ch.samuel-snchz.app;
+package ch.samuelsnchz.app;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
