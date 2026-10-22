@@ -13,6 +13,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Font;
 
 public class MainView {
@@ -24,10 +25,14 @@ public class MainView {
 	private final Canvas mainCanvas;
 	private final TextArea outputTextArea;
 	private final Button resetButton;
+	private final Button enterButton;
 
 	public MainView() {
 		this.root = new GridPane();
 
+		/*-------------------------- Static View --------------------------*/
+
+		//GridPane rules 50:50 right/left and button row
 		ColumnConstraints leftColumn = new ColumnConstraints();
 		ColumnConstraints rightColumn = new ColumnConstraints();
 
@@ -39,24 +44,27 @@ public class MainView {
 		row.setVgrow(Priority.ALWAYS);
 		root.getRowConstraints().add(row);
 
+		//Creating Canvas
 		this.mainCanvas = new Canvas(CANVAS_SIZE, CANVAS_SIZE);
-		GraphicsContext gc = mainCanvas.getGraphicsContext2D();
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 		GridPane.setHalignment(mainCanvas, HPos.CENTER);
 		GridPane.setValignment(mainCanvas, VPos.CENTER);
 
+
+		//Creating Label for output textArea
 		final Label outputLabel = new Label("output");
 		outputLabel.setMaxWidth(Double.MAX_VALUE);
 		outputLabel.setAlignment(Pos.CENTER);
 
+		//Creating textArea for output text
 		this.outputTextArea = new TextArea();
 		outputTextArea.setEditable(false);
 		outputTextArea.setFont(Font.font("Monospaced", 16));
 		VBox.setVgrow(outputTextArea, Priority.ALWAYS);
 
+		//Creating enter and reset buttons
 		this.resetButton = new Button("reset");
-		final ToolBar toolBar = new ToolBar(resetButton);
+		this.enterButton = new Button("enter");
+		final ToolBar toolBar = new ToolBar(enterButton, resetButton);
 
 		final VBox rightPanel = new VBox(10);
 		rightPanel.setPadding(new Insets(10));
@@ -64,9 +72,54 @@ public class MainView {
 
 		root.add(mainCanvas, 0, 0);
 		root.add(rightPanel, 1, 0);
+
+		/*-------------------------- Drawing --------------------------*/
+
+		//Initialization of graphic context
+		installBrush();
+
 	}
 
 	public Parent getRoot() {
 		return root;
+	}
+
+	private void installBrush() {
+		GraphicsContext gc = mainCanvas.getGraphicsContext2D();
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+
+		gc.setStroke(Color.BLACK);
+		gc.setLineWidth(15);
+		gc.setLineCap(StrokeLineCap.ROUND);
+
+		double[] pos = new double[2];
+		double[] pos_old = new double[2];
+
+		mainCanvas.setOnMousePressed(event -> {
+			pos[0] = event.getX();
+			pos[1] = event.getY();
+		});
+
+		mainCanvas.setOnMouseDragged(event -> {
+			pos_old[0] = pos[0];
+			pos_old[1] = pos[1];
+			pos[0] = event.getX();
+			pos[1] = event.getY();
+
+			gc.strokeLine(
+					pos_old[0],
+					pos_old[1],
+					pos[0],
+					pos[1]
+			);
+
+		});
+
+		resetButton.setOnAction(event -> {
+			gc.setFill(Color.WHITE);
+			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+		});
+
 	}
 }
