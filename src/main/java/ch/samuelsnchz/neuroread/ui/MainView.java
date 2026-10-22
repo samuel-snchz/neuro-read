@@ -90,7 +90,7 @@ public class MainView {
 		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 
 		gc.setStroke(Color.BLACK);
-		gc.setLineWidth(15);
+		gc.setLineWidth(18);
 		gc.setLineCap(StrokeLineCap.ROUND);
 
 		double[] pos = new double[2];
@@ -99,6 +99,13 @@ public class MainView {
 		mainCanvas.setOnMousePressed(event -> {
 			pos[0] = event.getX();
 			pos[1] = event.getY();
+
+			gc.strokeLine(
+					pos[0],
+					pos[1],
+					pos[0],
+					pos[1]
+			);
 		});
 
 		mainCanvas.setOnMouseDragged(event -> {
@@ -110,8 +117,8 @@ public class MainView {
 			gc.strokeLine(
 					pos_old[0],
 					pos_old[1],
-					pos[0],
-					pos[1]
+					event.getX(),
+					event.getY()
 			);
 
 		});
