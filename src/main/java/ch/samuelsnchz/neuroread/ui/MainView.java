@@ -15,7 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
@@ -88,8 +88,14 @@ public class MainView {
 		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 
 		installBrush();
+		installEnterButton();
 		installResetButton();
-		installSubmit();
+		root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			switch (event.getCode()) {
+				case ENTER -> { submitDrawing(); event.consume(); }
+				case BACK_SPACE, DELETE -> { clearCanvas(); event.consume(); }
+			}
+		});
 	}
 
 	public Parent getRoot() {
@@ -107,7 +113,7 @@ public class MainView {
 		PixelReader reader = snapshot.getPixelReader();
 
 		for (int i = 0; i < output_size; ++i ){
-			for(int j = 0; j < output_size; ++j ) {
+			for (int j = 0; j < output_size; ++j ) {
 				double sum = 0;
 
 				//TODO: put 12 somewhere else, in a final and static variable
@@ -131,6 +137,9 @@ public class MainView {
 
 	private  void submitDrawing() {
 		GrayscaleImage image = captureImage();
+
+		/* ... */
+
 		clearCanvas();
 	}
 
@@ -139,19 +148,23 @@ public class MainView {
 		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 	}
 
-	private void installResetButton() {
-		resetButton.setOnAction(event -> {
-			clearCanvas();
+	/*
+	private void installKeyListener() {
+		mainCanvas.setOnKeyPressed(event -> {
+			switch (event.getCode()) {
+				case ENTER -> submitDrawing();
+				case BACK_SPACE, CLEAR -> clearCanvas();
+			}
 		});
 	}
 
-	private void installSubmit() {
-		mainCanvas.setOnKeyPressed(event -> {
-			if (event.getCode() == KeyCode.ENTER) {
-				submitDrawing();
-			}
-		});
+	 */
 
+	private void installResetButton() {
+		resetButton.setOnAction(event -> clearCanvas());
+	}
+
+	private void installEnterButton() {
 		enterButton.setOnAction(event -> submitDrawing());
 	}
 
