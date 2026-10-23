@@ -148,18 +148,6 @@ public class MainView {
 		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 	}
 
-	/*
-	private void installKeyListener() {
-		mainCanvas.setOnKeyPressed(event -> {
-			switch (event.getCode()) {
-				case ENTER -> submitDrawing();
-				case BACK_SPACE, CLEAR -> clearCanvas();
-			}
-		});
-	}
-
-	 */
-
 	private void installResetButton() {
 		resetButton.setOnAction(event -> clearCanvas());
 	}
