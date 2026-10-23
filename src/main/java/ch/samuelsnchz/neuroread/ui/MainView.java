@@ -11,6 +11,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
@@ -26,6 +28,10 @@ public class MainView {
 	private final TextArea outputTextArea;
 	private final Button resetButton;
 	private final Button enterButton;
+
+	private final GraphicsContext gc;
+	private final WritableImage snapshot;
+	private final PixelReader reader;
 
 	public MainView() {
 		this.root = new GridPane();
@@ -76,7 +82,16 @@ public class MainView {
 		/*-------------------------- Drawing --------------------------*/
 
 		//Initialization of graphic context
+		this.gc = mainCanvas.getGraphicsContext2D();
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+
 		installBrush();
+		installResetButton();
+
+		this.snapshot = mainCanvas.snapshot(null, null);
+		this.reader = snapshot.getPixelReader();
+
 
 	}
 
@@ -84,11 +99,22 @@ public class MainView {
 		return root;
 	}
 
-	private void installBrush() {
-		GraphicsContext gc = mainCanvas.getGraphicsContext2D();
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+	private Color getColor(int posX, int posY) {
+		return reader.getColor(posX, posY);
+	}
 
+	private double getBrightness(int posX, int posY) {
+		return reader.getColor(posX, posY).getBrightness();
+	}
+
+	private void installResetButton() {
+		resetButton.setOnAction(event -> {
+			gc.setFill(Color.WHITE);
+			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+		});
+	}
+
+	private void installBrush() {
 		gc.setStroke(Color.BLACK);
 		gc.setLineWidth(18);
 		gc.setLineCap(StrokeLineCap.ROUND);
@@ -123,10 +149,7 @@ public class MainView {
 
 		});
 
-		resetButton.setOnAction(event -> {
-			gc.setFill(Color.WHITE);
-			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
-		});
-
 	}
+
+
 }
