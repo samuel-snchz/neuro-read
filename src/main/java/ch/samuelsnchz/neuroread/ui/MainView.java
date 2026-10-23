@@ -15,6 +15,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
@@ -88,57 +89,70 @@ public class MainView {
 
 		installBrush();
 		installResetButton();
-		installEnterButton();
+		installSubmit();
 	}
 
 	public Parent getRoot() {
 		return root;
 	}
 
-	private void installResetButton() {
-		resetButton.setOnAction(event -> {
-			gc.setFill(Color.WHITE);
-			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
-		});
-	}
-
-	private GrayscaleImage installEnterButton() {
+	private GrayscaleImage captureImage() {
 		int cmpd_pxl_size = 12;
 		int output_size = CharacterRecognizer.INPUT_SIZE;
 		int total_output_size = CharacterRecognizer.TOTAL_INPUT_SIZE;
 
 		GrayscaleImage.Builder grayscaleImageBuilder = new GrayscaleImage.Builder(output_size, output_size);
 
-		enterButton.setOnAction(event -> {
-			WritableImage snapshot = mainCanvas.snapshot(null, null);
-			PixelReader reader = snapshot.getPixelReader();
+		WritableImage snapshot = mainCanvas.snapshot(null, null);
+		PixelReader reader = snapshot.getPixelReader();
 
-			for (int i = 0; i < output_size; ++i ){
-				for(int j = 0; j < output_size; ++j ) {
-					double sum = 0;
+		for (int i = 0; i < output_size; ++i ){
+			for(int j = 0; j < output_size; ++j ) {
+				double sum = 0;
 
-					//TODO: put 12 somewhere else, in a final and static variable
-					for (int x = 0; x < cmpd_pxl_size; ++x) {
-						for (int y = 0; y < cmpd_pxl_size; ++y) {
-							Color color = reader.getColor(
-									i * cmpd_pxl_size + x,
-									j * cmpd_pxl_size + y
-							);
+				//TODO: put 12 somewhere else, in a final and static variable
+				for (int x = 0; x < cmpd_pxl_size; ++x) {
+					for (int y = 0; y < cmpd_pxl_size; ++y) {
+						Color color = reader.getColor(
+								i * cmpd_pxl_size + x,
+								j * cmpd_pxl_size + y
+						);
 
-							sum += (1 - color.getBrightness());
-						}
+						sum += (1 - color.getBrightness());
 					}
-
-					double average_brightness = sum / (cmpd_pxl_size*cmpd_pxl_size);
-					grayscaleImageBuilder.setPixel(i, j, average_brightness);
 				}
-			}
 
-			gc.setFill(Color.WHITE);
-			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+				double average_brightness = sum / (cmpd_pxl_size * cmpd_pxl_size);
+				grayscaleImageBuilder.setPixel(i, j, average_brightness);
+			}
+		}
+		return grayscaleImageBuilder.build();
+	}
+
+	private  void submitDrawing() {
+		GrayscaleImage image = captureImage();
+		clearCanvas();
+	}
+
+	private void clearCanvas() {
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+	}
+
+	private void installResetButton() {
+		resetButton.setOnAction(event -> {
+			clearCanvas();
+		});
+	}
+
+	private void installSubmit() {
+		mainCanvas.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.ENTER) {
+				submitDrawing();
+			}
 		});
 
-		return grayscaleImageBuilder.build();
+		enterButton.setOnAction(event -> submitDrawing());
 	}
 
 	private void installBrush() {
