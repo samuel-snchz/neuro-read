@@ -102,16 +102,17 @@ public class MainView {
 		});
 	}
 
-	private void installEnterButton() {
+	private GrayscaleImage installEnterButton() {
 		int cmpd_pxl_size = 12;
 		int output_size = CharacterRecognizer.INPUT_SIZE;
 		int total_output_size = CharacterRecognizer.TOTAL_INPUT_SIZE;
+
+		GrayscaleImage.Builder grayscaleImageBuilder = new GrayscaleImage.Builder(output_size, output_size);
 
 		enterButton.setOnAction(event -> {
 			WritableImage snapshot = mainCanvas.snapshot(null, null);
 			PixelReader reader = snapshot.getPixelReader();
 
-			GrayscaleImage.Builder GrayscaleImageBuilder = new GrayscaleImage.Builder(output_size, output_size);
 			for (int i = 0; i < output_size; ++i ){
 				for(int j = 0; j < output_size; ++j ) {
 					double sum = 0;
@@ -128,16 +129,16 @@ public class MainView {
 						}
 					}
 
-					double avarage_brightness = sum / (cmpd_pxl_size*cmpd_pxl_size);
-					GrayscaleImageBuilder.setPixel(i, j, avarage_brightness);
+					double average_brightness = sum / (cmpd_pxl_size*cmpd_pxl_size);
+					grayscaleImageBuilder.setPixel(i, j, average_brightness);
 				}
 			}
-
-			GrayscaleImageBuilder.build();
 
 			gc.setFill(Color.WHITE);
 			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 		});
+
+		return grayscaleImageBuilder.build();
 	}
 
 	private void installBrush() {
