@@ -1,5 +1,7 @@
 package ch.samuelsnchz.neuroread.ui;
 
+import ch.samuelsnchz.neuroread.recognition.CharacterRecognizer;
+import ch.samuelsnchz.neuroread.recognition.GrayscaleImage;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,8 +32,6 @@ public class MainView {
 	private final Button enterButton;
 
 	private final GraphicsContext gc;
-	private final WritableImage snapshot;
-	private final PixelReader reader;
 
 	public MainView() {
 		this.root = new GridPane();
@@ -88,27 +88,53 @@ public class MainView {
 
 		installBrush();
 		installResetButton();
-
-		this.snapshot = mainCanvas.snapshot(null, null);
-		this.reader = snapshot.getPixelReader();
-
-
+		installEnterButton();
 	}
 
 	public Parent getRoot() {
 		return root;
 	}
 
-	private Color getColor(int posX, int posY) {
-		return reader.getColor(posX, posY);
-	}
-
-	private double getBrightness(int posX, int posY) {
-		return reader.getColor(posX, posY).getBrightness();
-	}
-
 	private void installResetButton() {
 		resetButton.setOnAction(event -> {
+			gc.setFill(Color.WHITE);
+			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
+		});
+	}
+
+	private void installEnterButton() {
+		int cmpd_pxl_size = 12;
+		int output_size = CharacterRecognizer.INPUT_SIZE;
+		int total_output_size = CharacterRecognizer.TOTAL_INPUT_SIZE;
+
+		enterButton.setOnAction(event -> {
+			WritableImage snapshot = mainCanvas.snapshot(null, null);
+			PixelReader reader = snapshot.getPixelReader();
+
+			GrayscaleImage.Builder GrayscaleImageBuilder = new GrayscaleImage.Builder(output_size, output_size);
+			for (int i = 0; i < output_size; ++i ){
+				for(int j = 0; j < output_size; ++j ) {
+					double sum = 0;
+
+					//TODO: put 12 somewhere else, in a final and static variable
+					for (int x = 0; x < cmpd_pxl_size; ++x) {
+						for (int y = 0; y < cmpd_pxl_size; ++y) {
+							Color color = reader.getColor(
+									i * cmpd_pxl_size + x,
+									j * cmpd_pxl_size + y
+							);
+
+							sum += (1 - color.getBrightness());
+						}
+					}
+
+					double avarage_brightness = sum / (cmpd_pxl_size*cmpd_pxl_size);
+					GrayscaleImageBuilder.setPixel(i, j, avarage_brightness);
+				}
+			}
+
+			GrayscaleImageBuilder.build();
+
 			gc.setFill(Color.WHITE);
 			gc.fillRect(0, 0, mainCanvas.getWidth(), mainCanvas.getHeight());
 		});
