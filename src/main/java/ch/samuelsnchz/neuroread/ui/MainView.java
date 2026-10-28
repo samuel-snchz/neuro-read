@@ -34,7 +34,7 @@ public class MainView {
 
 	private final GraphicsContext gc;
 
-	public MainView() {
+	public MainView(CharacterRecognizer recognizer) {
 		this.root = new GridPane();
 
 		/*-------------------------- Static View --------------------------*/

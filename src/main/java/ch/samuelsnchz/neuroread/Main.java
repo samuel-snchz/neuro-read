@@ -1,5 +1,6 @@
 package ch.samuelsnchz.neuroread;
 
+import ch.samuelsnchz.neuroread.recognition.CharacterRecognizer;
 import ch.samuelsnchz.neuroread.ui.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -13,7 +14,8 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		MainView view = new MainView();
+		CharacterRecognizer recognizer;
+		MainView view = new MainView(recognizer);
 		Scene scene = new Scene(view.getRoot(), 800,350);
 		primaryStage.setTitle("Neuro Read");
 		primaryStage.setScene(scene);
